@@ -35,6 +35,7 @@ import me.lucko.luckperms.common.messaging.MessagingFactory;
 import me.lucko.luckperms.common.model.User;
 import me.lucko.luckperms.common.model.manager.track.StandardTrackManager;
 import me.lucko.luckperms.common.plugin.AbstractLuckPermsPlugin;
+import me.lucko.luckperms.common.sender.AbstractSender;
 import me.lucko.luckperms.common.sender.DummySender;
 import me.lucko.luckperms.common.sender.Sender;
 import me.lucko.luckperms.common.tasks.CacheHousekeepingTask;
@@ -56,7 +57,7 @@ import me.lucko.luckperms.sponge.service.model.persisted.PersistedCollection;
 import me.lucko.luckperms.sponge.tasks.ServiceCacheHousekeepingTask;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.query.QueryOptions;
 
@@ -65,6 +66,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
 import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.plugin.PluginContainer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -141,18 +143,21 @@ public class LPSpongePlugin extends AbstractLuckPermsPlugin {
     @Override
     protected void registerCommands() {
         this.commandManager = new SpongeCommandExecutor(this);
-        this.bootstrap.registerListeners(new RegisterCommandsListener());
+        this.bootstrap.registerListeners(new RegisterCommandsListener(this.bootstrap.getPluginContainer(), this.commandManager));
     }
 
-    private final class RegisterCommandsListener {
+    public static final class RegisterCommandsListener {
+        private final PluginContainer pluginContainer;
+        private final Command.Raw command;
+
+        RegisterCommandsListener(PluginContainer pluginContainer, Command.Raw command) {
+            this.pluginContainer = pluginContainer;
+            this.command = command;
+        }
+
         @Listener
         public void onCommandRegister(RegisterCommandEvent<Command.Raw> event) {
-            event.register(
-                    LPSpongePlugin.this.bootstrap.getPluginContainer(),
-                    LPSpongePlugin.this.commandManager,
-                    "luckperms",
-                    "lp", "perm", "perms", "permission", "permissions"
-            );
+            event.register(this.pluginContainer, this.command, "luckperms", "lp", "perm", "perms", "permission", "permissions");
         }
     }
 
@@ -179,7 +184,6 @@ public class LPSpongePlugin extends AbstractLuckPermsPlugin {
 
     @Override
     protected void setupPlatformHooks() {
-        getLogger().info("Registering PermissionService...");
         this.updateEventHandler = UpdateEventHandler.obtain(this);
         this.service = new LuckPermsService(this);
 
@@ -196,13 +200,19 @@ public class LPSpongePlugin extends AbstractLuckPermsPlugin {
         //    }
         //}
 
-        this.bootstrap.registerListeners(new RegisterServiceListener());
+        this.bootstrap.registerListeners(new RegisterServiceListener(this.service));
     }
 
-    private final class RegisterServiceListener {
+    public static final class RegisterServiceListener {
+        private final LuckPermsService service;
+
+        RegisterServiceListener(LuckPermsService service) {
+            this.service = service;
+        }
+
         @Listener
-        public void onCommandRegister(ProvideServiceEvent.EngineScoped<PermissionService> event) {
-            event.suggest(() -> LPSpongePlugin.this.service.sponge());
+        public void onPermissionServiceProvide(ProvideServiceEvent.EngineScoped<PermissionService> event) {
+            event.suggest(this.service::sponge);
         }
     }
 
@@ -216,15 +226,15 @@ public class LPSpongePlugin extends AbstractLuckPermsPlugin {
         this.bootstrap.registerListeners(new RegisterApiListener(api));
     }
 
-    private static final class RegisterApiListener {
+    public static final class RegisterApiListener {
         private final LuckPerms api;
 
-        private RegisterApiListener(LuckPerms api) {
+        RegisterApiListener(LuckPerms api) {
             this.api = api;
         }
 
         @Listener
-        public void onCommandRegister(ProvideServiceEvent<LuckPerms> event) {
+        public void onLuckPermsServiceProvide(ProvideServiceEvent<LuckPerms> event) {
             event.suggest(() -> this.api);
         }
     }
@@ -286,12 +296,14 @@ public class LPSpongePlugin extends AbstractLuckPermsPlugin {
     @Override
     public Sender getConsoleSender() {
         if (this.bootstrap.getGame().isServerAvailable()) {
-            return this.senderFactory.wrap(this.bootstrap.getGame().getServer());
+            return this.senderFactory.wrap(this.bootstrap.getGame().getSystemSubject());
         } else {
             return new DummySender(this, Sender.CONSOLE_UUID, Sender.CONSOLE_NAME) {
                 @Override
                 public void sendMessage(Component message) {
-                    LPSpongePlugin.this.bootstrap.getPluginLogger().info(LegacyComponentSerializer.legacySection().serialize(message));
+                    for (Component line : AbstractSender.splitNewlines(message)) {
+                        LPSpongePlugin.this.bootstrap.getPluginLogger().info(PlainComponentSerializer.plain().serialize(line));
+                    }
                 }
             };
         }

@@ -36,21 +36,33 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.function.Function;
 
 public class ReflectionClassLoader implements PluginClassLoader {
+
+    private static URLClassLoader extractClassLoaderFromBootstrap(LuckPermsBootstrap bootstrap) {
+        return castToUrlClassLoader(bootstrap.getClass().getClassLoader());
+    }
+
+    public static URLClassLoader castToUrlClassLoader(Object classLoader) {
+        if (classLoader instanceof URLClassLoader) {
+            return (URLClassLoader) classLoader;
+        } else {
+            throw new IllegalStateException("ClassLoader is not instance of URLClassLoader: " + classLoader.getClass().getName());
+        }
+    }
+
     private final URLClassLoader classLoader;
 
     @SuppressWarnings("Guava") // we can't use java.util.Function because old Guava versions are used at runtime
     private final Supplier<Method> addUrlMethod;
 
     public ReflectionClassLoader(LuckPermsBootstrap bootstrap) throws IllegalStateException {
-        ClassLoader classLoader = bootstrap.getClass().getClassLoader();
-        if (classLoader instanceof URLClassLoader) {
-            this.classLoader = (URLClassLoader) classLoader;
-        } else {
-            throw new IllegalStateException("ClassLoader is not instance of URLClassLoader");
-        }
+        this(bootstrap, ReflectionClassLoader::extractClassLoaderFromBootstrap);
+    }
 
+    public ReflectionClassLoader(LuckPermsBootstrap bootstrap, Function<LuckPermsBootstrap, ? extends URLClassLoader> classLoader) {
+        this.classLoader = classLoader.apply(bootstrap);
         this.addUrlMethod = Suppliers.memoize(() -> {
             if (isJava9OrNewer()) {
                 bootstrap.getPluginLogger().info("It is safe to ignore any warning printed following this message " +

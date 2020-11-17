@@ -28,15 +28,15 @@ package me.lucko.luckperms.sponge;
 import com.google.inject.Inject;
 
 import me.lucko.luckperms.common.dependencies.classloader.PluginClassLoader;
-import me.lucko.luckperms.common.dependencies.classloader.ReflectionClassLoader;
 import me.lucko.luckperms.common.plugin.bootstrap.LuckPermsBootstrap;
 import me.lucko.luckperms.common.plugin.logging.PluginLogger;
-import me.lucko.luckperms.common.plugin.logging.Slf4jPluginLogger;
 import me.lucko.luckperms.common.util.MoreFiles;
+import me.lucko.luckperms.sponge.util.Log4jPluginLogger;
+import me.lucko.luckperms.sponge.util.SpongeClassLoader;
 
 import net.luckperms.api.platform.Platform;
 
-import org.slf4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Platform.Component;
 import org.spongepowered.api.Server;
@@ -45,7 +45,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.plugin.PluginContainer;
@@ -116,13 +116,13 @@ public class LPSpongeBootstrap implements LuckPermsBootstrap {
 
     @Inject
     public LPSpongeBootstrap(Logger logger, Game game, PluginContainer pluginContainer, @ConfigDir(sharedRoot = false) Path configDirectory) {
-        this.logger = new Slf4jPluginLogger(logger);
+        this.logger = new Log4jPluginLogger(logger);
         this.game = game;
         this.pluginContainer = pluginContainer;
         this.configDirectory = configDirectory;
 
         this.schedulerAdapter = new SpongeSchedulerAdapter(this.game, this.pluginContainer);
-        this.classLoader = new ReflectionClassLoader(this);
+        this.classLoader = new SpongeClassLoader(this);
         this.plugin = new LPSpongePlugin(this);
     }
 
@@ -145,7 +145,7 @@ public class LPSpongeBootstrap implements LuckPermsBootstrap {
 
     // lifecycle
     @Listener(order = Order.FIRST)
-    public void onEnable(StartingEngineEvent<Server> event) {
+    public void onEnable(ConstructPluginEvent event) {
         this.startTime = Instant.now();
         try {
             this.plugin.load();

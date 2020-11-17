@@ -25,6 +25,7 @@
 
 package me.lucko.luckperms.sponge;
 
+import me.lucko.luckperms.common.locale.TranslationManager;
 import me.lucko.luckperms.common.sender.Sender;
 import me.lucko.luckperms.common.sender.SenderFactory;
 import me.lucko.luckperms.sponge.service.CompatibilityUtil;
@@ -37,6 +38,7 @@ import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.Subject;
 
+import java.util.Locale;
 import java.util.UUID;
 
 public class SpongeSenderFactory extends SenderFactory<LPSpongePlugin, Audience> {
@@ -62,7 +64,13 @@ public class SpongeSenderFactory extends SenderFactory<LPSpongePlugin, Audience>
 
     @Override
     protected void sendMessage(Audience source, Component message) {
-        source.sendMessage(message);
+        Locale locale = null;
+        if (source instanceof Player) {
+            locale = ((Player) source).getLocale();
+        }
+        Component rendered = TranslationManager.render(message, locale);
+
+        source.sendMessage(rendered);
     }
 
     @Override

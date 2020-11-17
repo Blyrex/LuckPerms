@@ -5,7 +5,7 @@ include (
         'bukkit',
         'bukkit-legacy',
         'bungee',
-        'sponge', 'sponge:sponge-service', 'sponge:sponge-service-api6', 'sponge:sponge-service-api7',
+        'sponge', 'sponge:sponge-service', 'sponge:sponge-service-api8',
         'nukkit',
         'velocity'
 )

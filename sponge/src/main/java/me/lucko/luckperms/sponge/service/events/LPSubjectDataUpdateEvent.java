@@ -29,9 +29,9 @@ import me.lucko.luckperms.sponge.LPSpongePlugin;
 import me.lucko.luckperms.sponge.service.model.LPSubjectData;
 
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.EventContextKeys;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContext;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.event.permission.SubjectDataUpdateEvent;
 import org.spongepowered.api.service.permission.SubjectData;

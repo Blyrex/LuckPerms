@@ -46,12 +46,13 @@ import me.lucko.luckperms.sponge.service.model.persisted.PersistedCollection;
 import me.lucko.luckperms.sponge.service.model.persisted.SubjectStorage;
 import me.lucko.luckperms.sponge.service.reference.SubjectReferenceFactory;
 
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.plugin.PluginContainer;
+import net.kyori.adventure.text.Component;
+
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.service.context.ContextCalculator;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.plugin.PluginContainer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -144,7 +145,7 @@ public class LuckPermsService implements LPPermissionService {
     }
 
     @Override
-    public ContextManager<Subject, Player> getContextManager() {
+    public ContextManager<Subject, ServerPlayer> getContextManager() {
         return this.plugin.getContextManager();
     }
 
@@ -194,7 +195,7 @@ public class LuckPermsService implements LPPermissionService {
     }
 
     @Override
-    public LPPermissionDescription registerPermissionDescription(String id, Text description, PluginContainer owner) {
+    public LPPermissionDescription registerPermissionDescription(String id, Component description, PluginContainer owner) {
         Objects.requireNonNull(id, "id");
         SimplePermissionDescription desc = new SimplePermissionDescription(this, id, description, owner);
         this.permissionDescriptions.put(id, desc);

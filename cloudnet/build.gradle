@@ -1,0 +1,69 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repo.cloudnetservice.eu/repository/snapshots/"
+    }
+    maven {
+        name 'jitpack'
+        url 'https://jitpack.io'
+    }
+}
+
+dependencies {
+    compile project(':common')
+
+    compileOnly 'com.imaginarycode.minecraft:RedisBungee:0.4'
+    compile "de.dytanic.cloudnet:cloudnet:3.4.0-SNAPSHOT"
+    compile "de.dytanic.cloudnet:cloudnet-driver:3.4.0-SNAPSHOT"
+    compile "de.dytanic.cloudnet:cloudnet-wrapper-jvm:3.4.0-SNAPSHOT"
+    compile "de.dytanic.cloudnet:cloudnet-bridge:3.4.0-SNAPSHOT"
+    compile 'net.md-5:bungeecord-api:1.15-SNAPSHOT'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.27'
+
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        include 'module.json'
+    }
+}
+
+shadowJar {
+    archiveName = "LuckPerms-CloudNetModule-${project.ext.fullVersion}.jar"
+
+    dependencies {
+        include(dependency('net.luckperms:.*'))
+        include(dependency('me.lucko.luckperms:.*'))
+        include(dependency('net.md-5:bungeecord-api:1.15-SNAPSHOT'))
+    }
+
+    relocate 'net.kyori.adventure', 'me.lucko.luckperms.lib.adventure'
+    relocate 'net.kyori.event', 'me.lucko.luckperms.lib.eventbus'
+    relocate 'com.github.benmanes.caffeine', 'me.lucko.luckperms.lib.caffeine'
+    relocate 'okio', 'me.lucko.luckperms.lib.okio'
+    relocate 'okhttp3', 'me.lucko.luckperms.lib.okhttp3'
+    relocate 'net.bytebuddy', 'me.lucko.luckperms.lib.bytebuddy'
+    relocate 'me.lucko.commodore', 'me.lucko.luckperms.lib.commodore'
+    relocate 'org.mariadb.jdbc', 'me.lucko.luckperms.lib.mariadb'
+    relocate 'com.mysql', 'me.lucko.luckperms.lib.mysql'
+    relocate 'org.postgresql', 'me.lucko.luckperms.lib.postgresql'
+    relocate 'com.zaxxer.hikari', 'me.lucko.luckperms.lib.hikari'
+    relocate 'com.mongodb', 'me.lucko.luckperms.lib.mongodb'
+    relocate 'org.bson', 'me.lucko.luckperms.lib.bson'
+    relocate 'redis.clients.jedis', 'me.lucko.luckperms.lib.jedis'
+    relocate 'org.apache.commons.pool2', 'me.lucko.luckperms.lib.commonspool2'
+    relocate 'ninja.leaping.configurate', 'me.lucko.luckperms.lib.configurate'
+}
+
+artifacts {
+    archives shadowJar
+}
+

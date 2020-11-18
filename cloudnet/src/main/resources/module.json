@@ -1,0 +1,16 @@
+{
+  "group": "me.lucko",
+  "name": "LuckPerms",
+  "version": "1.0",
+  "author": "Blyrex",
+  "website": "-",
+  "description": "This module adds support for LuckPerms",
+  "main": "me.lucko.luckperms.cloudnet.LPNodeBootstrap",
+  "dependencies": [
+    {
+      "group": "de.dytanic.cloudnet.modules",
+      "name": "CloudNet-Bridge",
+      "version": "1.2"
+    }
+  ]
+}

@@ -60,7 +60,7 @@ import java.util.concurrent.CountDownLatch;
  */
 @Plugin(
         id = "luckperms",
-        name = "LuckPerms",
+        name = "LuckPerms-CloudNet",
         version = "@version@",
         authors = "Luck",
         description = "A permissions plugin",

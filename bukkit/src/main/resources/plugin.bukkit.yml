@@ -19,7 +19,7 @@ api-version: 1.13
 loadbefore: [Vault]
 
 # Soft depend on LilyPad for messaging service impl
-softdepend: [LilyPad-Connect]
+softdepend: [LilyPad-Connect, CloudNet-Bridge]
 
 commands:
   luckperms:

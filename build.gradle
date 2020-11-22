@@ -56,9 +56,20 @@ subprojects {
         newLine = true
     }
 
+    dependencies {
+        compile "de.dytanic.cloudnet:cloudnet:3.4.0-SNAPSHOT"
+        compile "de.dytanic.cloudnet:cloudnet-driver:3.4.0-SNAPSHOT"
+        compile "de.dytanic.cloudnet:cloudnet-wrapper-jvm:3.4.0-SNAPSHOT"
+        compile "de.dytanic.cloudnet:cloudnet-bridge:3.4.0-SNAPSHOT"
+    }
+
     repositories {
         mavenCentral()
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url 'https://repo.lucko.me/' }
+        maven {
+            url "https://repo.cloudnetservice.eu/repository/snapshots/"
+        }
     }
+
 }

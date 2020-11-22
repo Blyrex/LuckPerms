@@ -179,14 +179,8 @@ public class LPBungeePlugin extends AbstractLuckPermsPlugin {
         File configFile = new File(this.bootstrap.getDataFolder(), "config.yml");
 
         if (!configFile.exists()) {
-            this.bootstrap.getDataFolder().mkdirs();
-            try (InputStream is = this.bootstrap.getResourceAsStream("config.yml")) {
-                Files.copy(is, configFile.toPath());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            configFile = this.queryNodeConfig();
         }
-
         return configFile;
     }
 

@@ -354,8 +354,7 @@ public class LPBukkitPlugin extends AbstractLuckPermsPlugin {
     private File resolveConfig() {
         File configFile = new File(this.bootstrap.getDataFolder(), "config.yml");
         if (!configFile.exists()) {
-            this.bootstrap.getDataFolder().mkdirs();
-            this.bootstrap.saveResource("config.yml", false);
+            configFile = this.queryNodeConfig();
         }
         return configFile;
     }

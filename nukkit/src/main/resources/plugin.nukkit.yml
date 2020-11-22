@@ -1,4 +1,4 @@
-name: LuckPerms
+name: LuckPerms-CloudNet
 version: ${pluginVersion}
 api: ["1.0.5"]
 description: A permissions plugin

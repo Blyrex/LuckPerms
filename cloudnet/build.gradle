@@ -5,22 +5,20 @@ plugins {
 repositories {
     mavenCentral()
     maven {
-        url "https://repo.cloudnetservice.eu/repository/snapshots/"
-    }
-    maven {
         name 'jitpack'
         url 'https://jitpack.io'
     }
 }
 
 dependencies {
+
     compile project(':common')
+    compile project(':bukkit')
+    compile project(':nukkit')
+    compile project(':bungee')
+    compile project(':velocity')
 
     compileOnly 'com.imaginarycode.minecraft:RedisBungee:0.4'
-    compile "de.dytanic.cloudnet:cloudnet:3.4.0-SNAPSHOT"
-    compile "de.dytanic.cloudnet:cloudnet-driver:3.4.0-SNAPSHOT"
-    compile "de.dytanic.cloudnet:cloudnet-wrapper-jvm:3.4.0-SNAPSHOT"
-    compile "de.dytanic.cloudnet:cloudnet-bridge:3.4.0-SNAPSHOT"
     compile 'net.md-5:bungeecord-api:1.15-SNAPSHOT'
     compile group: 'org.yaml', name: 'snakeyaml', version: '1.27'
 
@@ -32,7 +30,24 @@ dependencies {
 
 processResources {
     from(sourceSets.main.resources.srcDirs) {
+        expand 'pluginVersion': sourceSets.main.resources.srcDirs
         include 'module.json'
+        include 'plugin.bukkit.yml'
+        include 'bungee.yml'
+        include 'plugin.nukkit.yml'
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    project(':bukkit').sourceSets.main.resources,
+                    project(':nukkit').sourceSets.main.resources,
+                    project(':bungee').sourceSets.main.resources,
+                    project(':velocity').sourceSets.main.resources
+            ]
+        }
     }
 }
 

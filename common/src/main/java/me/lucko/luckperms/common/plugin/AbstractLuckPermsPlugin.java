@@ -25,6 +25,11 @@
 
 package me.lucko.luckperms.common.plugin;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import me.lucko.luckperms.common.actionlog.LogDispatcher;
 import me.lucko.luckperms.common.api.ApiRegistrationUtil;
 import me.lucko.luckperms.common.api.LuckPermsApiProvider;
@@ -59,6 +64,7 @@ import net.luckperms.api.LuckPerms;
 
 import okhttp3.OkHttpClient;
 
+import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -104,6 +110,7 @@ public abstract class AbstractLuckPermsPlugin implements LuckPermsPlugin {
     }
 
     public final void enable() {
+
         // load the sender factory instance
         setupSenderFactory();
 
@@ -383,4 +390,17 @@ public abstract class AbstractLuckPermsPlugin implements LuckPermsPlugin {
         }
         return "LuckPerms";
     }
+
+
+    public File queryNodeConfig() {
+        ChannelMessage channelMessage = ChannelMessage.builder()
+                .channel("luckperms_cloudnet")
+                .message("query_config")
+                .json(JsonDocument.newDocument())
+                .targetAll()
+                .build()
+                .sendSingleQuery();
+        return new File(channelMessage.getJson().getString("filePath"));
+    }
+
 }

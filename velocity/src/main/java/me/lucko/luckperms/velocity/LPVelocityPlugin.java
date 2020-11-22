@@ -52,6 +52,7 @@ import me.lucko.luckperms.velocity.messaging.VelocityMessagingFactory;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.query.QueryOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -172,16 +173,8 @@ public class LPVelocityPlugin extends AbstractLuckPermsPlugin {
     private Path resolveConfig() {
         Path path = this.bootstrap.getConfigDirectory().resolve("config.yml");
         if (!Files.exists(path)) {
-            try {
-                MoreFiles.createDirectoriesIfNotExists(this.bootstrap.getConfigDirectory());
-                try (InputStream is = getClass().getClassLoader().getResourceAsStream("config.yml")) {
-                    Files.copy(is, path);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            path = this.queryNodeConfig().toPath().toAbsolutePath();
         }
-
         return path;
     }
 

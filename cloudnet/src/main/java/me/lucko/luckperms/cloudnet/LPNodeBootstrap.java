@@ -1,35 +1,43 @@
 package me.lucko.luckperms.cloudnet;
 
+import com.google.gson.Gson;
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.logging.LogLevel;
+import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import de.dytanic.cloudnet.driver.module.ModuleLifeCycle;
 import de.dytanic.cloudnet.driver.module.ModuleTask;
 import de.dytanic.cloudnet.driver.module.driver.DriverModule;
 import de.dytanic.cloudnet.ext.bridge.player.ICloudPlayer;
 import de.dytanic.cloudnet.ext.bridge.player.IPlayerManager;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import me.lucko.luckperms.cloudnet.config.LuckPermsNodeConfig;
+import me.lucko.luckperms.cloudnet.listener.PluginIncludeListener;
 import me.lucko.luckperms.common.dependencies.classloader.PluginClassLoader;
 import me.lucko.luckperms.common.dependencies.classloader.ReflectionClassLoader;
 import me.lucko.luckperms.common.plugin.bootstrap.LuckPermsBootstrap;
-import me.lucko.luckperms.common.plugin.logging.JavaPluginLogger;
 import me.lucko.luckperms.common.plugin.logging.PluginLogger;
 import me.lucko.luckperms.common.plugin.scheduler.SchedulerAdapter;
 import net.luckperms.api.platform.Platform;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.logging.Logger;
 
+@Getter
 public class LPNodeBootstrap extends DriverModule implements LuckPermsBootstrap {
 
-
-    private PluginLogger logger = null;
+    private PluginLogger lpLogger = null;
     private final SchedulerAdapter schedulerAdapter;
-    private final PluginClassLoader classLoader;
+    private final PluginClassLoader lpClassLoader;
     private final LPNodePlugin plugin;
+    private LuckPermsNodeConfig luckPermsNodeConfig;
 
     private Instant startTime;
 
@@ -39,36 +47,37 @@ public class LPNodeBootstrap extends DriverModule implements LuckPermsBootstrap 
 
     public LPNodeBootstrap() {
         this.schedulerAdapter = new NodeSchedulerAdapter(this);
-        this.classLoader = new ReflectionClassLoader(this);
+        this.lpClassLoader = new ReflectionClassLoader(this);
         this.plugin = new LPNodePlugin(this, this.getDriver());
     }
 
     @ModuleTask(event = ModuleLifeCycle.LOADED)
     public void onModuleLoad() {
-        this.logger = new NodeLogger(this.getDriver());
-
+        this.getDriver().getEventManager().registerListener(this);
+        this.luckPermsNodeConfig = this.loadModuleConfig();
+        this.lpLogger = new NodeLogger(this.getDriver());
         this.plugin.load();
         this.startTime = Instant.now();
     }
 
     @ModuleTask(event = ModuleLifeCycle.STARTED)
     public void onStart() {
+        new PluginIncludeListener(this);
         this.plugin.enable();
         this.enableLatch.countDown();
     }
 
     @ModuleTask(event = ModuleLifeCycle.STOPPED)
     public void onStop() {
-        this.plugin.enable();
         this.plugin.disable();
     }
 
     @Override
     public PluginLogger getPluginLogger() {
-        if (this.logger == null) {
+        if (this.lpLogger == null) {
             throw new IllegalStateException("Logger has not been initialised yet");
         }
-        return this.logger;
+        return this.lpLogger;
     }
 
     @Override
@@ -78,7 +87,7 @@ public class LPNodeBootstrap extends DriverModule implements LuckPermsBootstrap 
 
     @Override
     public PluginClassLoader getPluginClassLoader() {
-        return this.classLoader;
+        return this.lpClassLoader;
     }
 
     @Override
@@ -118,13 +127,13 @@ public class LPNodeBootstrap extends DriverModule implements LuckPermsBootstrap 
 
     @Override
     public Path getDataDirectory() {
-        if(!this.getModuleWrapper().getDataFolder().exists()) this.getModuleWrapper().getDataFolder().mkdirs();
+        if (!this.getModuleWrapper().getDataFolder().exists()) this.getModuleWrapper().getDataFolder().mkdirs();
         return this.getModuleWrapper().getDataFolder().toPath();
     }
 
     @Override
     public Path getConfigDirectory() {
-        if(!this.getModuleWrapper().getDataFolder().exists()) this.getModuleWrapper().getDataFolder().mkdirs();
+        if (!this.getModuleWrapper().getDataFolder().exists()) this.getModuleWrapper().getDataFolder().mkdirs();
         return this.getModuleWrapper().getDataFolder().toPath();
     }
 
@@ -196,5 +205,40 @@ public class LPNodeBootstrap extends DriverModule implements LuckPermsBootstrap 
     @Override
     public String getDescription() {
         return super.getDescription();
+    }
+
+    @SneakyThrows
+    public LuckPermsNodeConfig loadModuleConfig() {
+        this.getModuleWrapper().getDataFolder().mkdirs();
+        Gson gson = new Gson();
+        File configFile = new File(super.getModuleWrapper().getDataFolder() + "//config.json");
+        if (!configFile.exists()) {
+            configFile.createNewFile();
+            List<String> list = new ArrayList<>();
+            list.add("ExampleGroup");
+            this.saveContentToFile(configFile, gson.toJson(new LuckPermsNodeConfig(true, list)));
+        }
+        return gson.fromJson(new FileReader(configFile), LuckPermsNodeConfig.class);
+    }
+
+    public void saveContentToFile(File file, String content) {
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+            bufferedWriter.write(content);
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @EventListener
+    public void handle(ChannelMessageReceiveEvent event) {
+
+        if (event.getMessage() == null || !event.getChannel().equals("luckperms_cloudnet") || !event.getMessage().equals("query_config"))
+            return;
+
+        event.setQueryResponse(ChannelMessage.buildResponseFor(event.getChannelMessage())
+                .json(JsonDocument.newDocument().append("filePath", new File(this.getModuleWrapper().getDataFolder(), "config.yml").getAbsolutePath()))
+                .build());
     }
 }

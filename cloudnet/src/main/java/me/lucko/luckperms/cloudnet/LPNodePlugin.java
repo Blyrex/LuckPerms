@@ -1,6 +1,11 @@
 package me.lucko.luckperms.cloudnet;
 
+import de.dytanic.cloudnet.common.document.gson.JsonDocument;
+import de.dytanic.cloudnet.common.logging.LogLevel;
 import de.dytanic.cloudnet.driver.CloudNetDriver;
+import de.dytanic.cloudnet.driver.channel.ChannelMessage;
+import de.dytanic.cloudnet.driver.event.EventListener;
+import de.dytanic.cloudnet.driver.event.events.channel.ChannelMessageReceiveEvent;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import me.lucko.luckperms.cloudnet.calculator.NodeCalculatorFactory;
@@ -11,7 +16,6 @@ import me.lucko.luckperms.common.api.LuckPermsApiProvider;
 import me.lucko.luckperms.common.calculator.CalculatorFactory;
 import me.lucko.luckperms.common.command.CommandManager;
 import me.lucko.luckperms.common.config.generic.adapter.ConfigurationAdapter;
-import me.lucko.luckperms.common.context.ContextManager;
 import me.lucko.luckperms.common.event.AbstractEventBus;
 import me.lucko.luckperms.common.event.EventDispatcher;
 import me.lucko.luckperms.common.messaging.MessagingFactory;
@@ -152,7 +156,7 @@ public class LPNodePlugin extends AbstractLuckPermsPlugin {
     }
 
     @SneakyThrows
-    private File resolveConfig() {
+    protected File resolveConfig() {
         File configFile = new File(this.bootstrap.getModuleWrapper().getDataFolder(), "config.yml");
         if (!configFile.exists()) {
             this.bootstrap.getModuleWrapper().getDataFolder().mkdirs();
@@ -160,4 +164,5 @@ public class LPNodePlugin extends AbstractLuckPermsPlugin {
         }
         return configFile;
     }
+
 }

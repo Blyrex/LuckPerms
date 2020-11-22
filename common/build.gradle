@@ -41,4 +41,9 @@ dependencies {
     compile 'redis.clients:jedis:3.3.0'
     compile 'org.mongodb:mongo-java-driver:3.12.2'
     compile 'org.yaml:snakeyaml:1.23'
+
+    compile "de.dytanic.cloudnet:cloudnet:3.4.0-SNAPSHOT"
+    compile "de.dytanic.cloudnet:cloudnet-driver:3.4.0-SNAPSHOT"
+    compile "de.dytanic.cloudnet:cloudnet-wrapper-jvm:3.4.0-SNAPSHOT"
+    compile "de.dytanic.cloudnet:cloudnet-bridge:3.4.0-SNAPSHOT"
 }

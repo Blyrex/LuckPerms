@@ -5,9 +5,9 @@ include (
         'bukkit',
         'bukkit-legacy',
         'bungee',
-        'sponge', 'sponge:sponge-service', 'sponge:sponge-service-api6', 'sponge:sponge-service-api7',
+        'fabric',
         'nukkit',
-        'velocity',
-        'cloudnet'
+        'cloudnet',
+        'sponge', 'sponge:sponge-service', 'sponge:sponge-service-api6', 'sponge:sponge-service-api7',
+        'velocity'
 )
-

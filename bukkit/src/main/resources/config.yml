@@ -470,6 +470,17 @@ apply-wildcards: true
 #   and so on.
 apply-sponge-implicit-wildcards: false
 
+# If the plugin should apply negated Bukkit default permissions before it considers wildcard
+# assignments.
+#
+# - Plugin authors can define permissions which explicitly should not be given automatically to OPs.
+#   This is usually used for so called "anti-permissions" - permissions which, when granted, apply
+#   something negative.
+# - If this option is set to true, LuckPerms will consider any negated declarations made by
+#   plugins before it considers wildcards. (similar to the way the OP system works)
+# - If this option is set to false, LuckPerms will consider any wildcard assignments first.
+apply-default-negated-permissions-before-wildcards: true
+
 # If the plugin should parse regex permissions.
 #
 # - If set to true, LuckPerms will detect regex permissions, marked with "r=" at the start of the
@@ -575,6 +586,12 @@ commands-allow-op: true
 # However, if you're willing to accept the consequences, the catch can be disabled by setting this
 # option to 'true.
 vault-unsafe-lookups: false
+
+# If LuckPerms should use the 'display name' of a group when returning groups in Vault API calls.
+#
+# - When this option is set to true, the display name of the group is returned.
+# - When this option is set to false, the standard name/id of the group is returned.
+vault-group-use-displaynames: true
 
 # Controls which group LuckPerms should use for NPC players when handling Vault requests.
 #

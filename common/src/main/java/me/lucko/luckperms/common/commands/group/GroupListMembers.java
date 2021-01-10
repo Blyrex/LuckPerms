@@ -34,7 +34,6 @@ import me.lucko.luckperms.common.command.access.ArgumentPermissions;
 import me.lucko.luckperms.common.command.access.CommandPermission;
 import me.lucko.luckperms.common.command.spec.CommandSpec;
 import me.lucko.luckperms.common.command.utils.ArgumentList;
-import me.lucko.luckperms.common.config.ConfigKeys;
 import me.lucko.luckperms.common.locale.Message;
 import me.lucko.luckperms.common.model.Group;
 import me.lucko.luckperms.common.model.HolderType;
@@ -85,7 +84,7 @@ public class GroupListMembers extends ChildCommand<Group> {
         if (target.getName().equals(GroupManager.DEFAULT_GROUP_NAME)) {
             // include all non-saved online players in the results
             for (User user : plugin.getUserManager().getAll().values()) {
-                if (!plugin.getUserManager().shouldSave(user)) {
+                if (!plugin.getUserManager().isNonDefaultUser(user)) {
                     matchedUsers.add(NodeEntry.of(user.getUniqueId(), node));
                 }
             }
@@ -104,21 +103,7 @@ public class GroupListMembers extends ChildCommand<Group> {
         Message.SEARCH_RESULT.send(sender, users + groups, users, groups);
 
         if (!matchedUsers.isEmpty()) {
-            Map<UUID, String> uuidLookups = LoadingMap.of(u -> {
-                String s = plugin.getStorage().getPlayerName(u).join();
-                if (s != null && !s.isEmpty() && !s.equals("null")) {
-                    return s;
-                }
-
-                if (plugin.getConfiguration().get(ConfigKeys.USE_SERVER_UUID_CACHE)) {
-                    s = plugin.getBootstrap().lookupUsername(u).orElse(null);
-                    if (s != null) {
-                        return s;
-                    }
-                }
-
-                return u.toString();
-            });
+            Map<UUID, String> uuidLookups = LoadingMap.of(u -> plugin.lookupUsername(u).orElseGet(u::toString));
             sendResult(sender, matchedUsers, uuidLookups::get, Message.SEARCH_SHOWING_USERS, HolderType.USER, label, page);
         }
 

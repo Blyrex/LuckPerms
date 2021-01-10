@@ -349,38 +349,6 @@ public interface Message {
             .append(text(msg, GRAY))
     );
 
-    Args2<String, String> MIGRATION_LOG = (pluginName, msg) -> prefixed(text()
-            // "&3MIGRATION &7[&3{}&7] &3&l> &f{}"
-            .append(translatable("luckperms.logs.migration-prefix", DARK_AQUA))
-            .append(space())
-            .append(text()
-                    .color(GRAY)
-                    .append(text('['))
-                    .append(text(pluginName, DARK_AQUA))
-                    .append(text(']'))
-            )
-            .append(space())
-            .append(text('>', DARK_AQUA, BOLD))
-            .append(space())
-            .append(text(msg, WHITE))
-    );
-
-    Args2<String, String> MIGRATION_LOG_PROGRESS = (pluginName, msg) -> prefixed(text()
-            // "&3MIGRATION &7[&3{}&7] &3&l> &7{}"
-            .append(translatable("luckperms.logs.migration-prefix", DARK_AQUA))
-            .append(space())
-            .append(text()
-                    .color(GRAY)
-                    .append(text('['))
-                    .append(text(pluginName, DARK_AQUA))
-                    .append(text(']'))
-            )
-            .append(space())
-            .append(text('>', DARK_AQUA, BOLD))
-            .append(space())
-            .append(text(msg, GRAY))
-    );
-
     Args0 COMMAND_NOT_RECOGNISED = () -> prefixed(translatable()
             // "&cCommand not recognised."
             .key("luckperms.commandsystem.command-not-recognised")
@@ -584,6 +552,22 @@ public interface Message {
             .key("luckperms.command.verbose.command-exec-complete")
             .color(AQUA)
             .append(FULL_STOP)
+    );
+
+    Args0 VERBOSE_OFF_COMMAND_NO_CHECKS = () -> join(newline(),
+            // &bThe command execution completed, but no permission checks were made.
+            // &7This might be because the plugin runs commands in the background (async). You can still use verbose manually to detect checks made like this.
+            prefixed(translatable()
+                    .key("luckperms.command.verbose.command.no-checks")
+                    .color(AQUA)
+                    .append(FULL_STOP)),
+            prefixed(text()
+                    .color(GRAY)
+                    .append(translatable("luckperms.command.verbose.command.possibly-async"))
+                    .append(FULL_STOP)
+                    .append(space())
+                    .append(translatable("luckperms.command.verbose.command.try-again-manually"))
+                    .append(FULL_STOP))
     );
 
     Args0 VERBOSE_RECORDING_ON = () -> prefixed(translatable()
@@ -2026,7 +2010,7 @@ public interface Message {
 
     Args3<PermissionHolder, ContextSet, Integer> PARENT_CLEAR_SUCCESS = (holder, context, removeCount) -> prefixed(translatable()
             // "&b{}&a's parents were cleared in context {}&a. (&b{}&a nodes were removed.)"
-            .key("luckperms.command.generic.parent.clear-track")
+            .key("luckperms.command.generic.parent.clear")
             .color(GREEN)
             .args(
                     text().color(AQUA).append(holder.getFormattedDisplayName()),
@@ -2757,7 +2741,7 @@ public interface Message {
             .append(FULL_STOP)
     );
 
-    Args4<String, String, Boolean, Boolean> USER_INFO_GENERAL = (username, uuid, mojang, online) -> join(newline(),
+    Args4<String, String, Component, Boolean> USER_INFO_GENERAL = (username, uuid, uuidType, online) -> join(newline(),
             // "&b&l> &bUser Info: &f{}"
             // "&f- &3UUID: &f{}"
             // "&f    &7(type: {}&7)"
@@ -2781,7 +2765,7 @@ public interface Message {
                     .append(OPEN_BRACKET)
                     .append(translatable("luckperms.command.user.info.uuid-type-key"))
                     .append(text(": "))
-                    .append(mojang ? translatable("luckperms.command.user.info.uuid-type.mojang", DARK_GREEN) : translatable("luckperms.command.user.info.uuid-type.not-mojang", DARK_GRAY))
+                    .append(uuidType)
                     .append(CLOSE_BRACKET)),
             prefixed(text()
                     .color(DARK_AQUA)

@@ -47,8 +47,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -60,8 +58,6 @@ public final class Track {
     private final String name;
 
     private final LuckPermsPlugin plugin;
-
-    private final Lock ioLock = new ReentrantLock();
 
     /**
      * The groups within this track
@@ -77,10 +73,6 @@ public final class Track {
 
     public String getName() {
         return this.name;
-    }
-
-    public Lock getIoLock() {
-        return this.ioLock;
     }
 
     public ApiTrack getApiProxy() {
@@ -324,7 +316,7 @@ public final class Track {
         }
 
         user.unsetNode(DataType.NORMAL, oldNode);
-        user.setNode(DataType.NORMAL, Inheritance.builder(nextGroup.getName()).withContext(context).build(), true);
+        user.setNode(DataType.NORMAL, oldNode.toBuilder().group(nextGroup.getName()).build(), true);
 
         if (context.isEmpty() && user.getPrimaryGroup().getStoredValue().orElse(GroupManager.DEFAULT_GROUP_NAME).equalsIgnoreCase(old)) {
             user.getPrimaryGroup().setStoredValue(nextGroup.getName());
@@ -378,7 +370,7 @@ public final class Track {
         }
 
         user.unsetNode(DataType.NORMAL, oldNode);
-        user.setNode(DataType.NORMAL, Inheritance.builder(previousGroup.getName()).withContext(context).build(), true);
+        user.setNode(DataType.NORMAL, oldNode.toBuilder().group(previousGroup.getName()).build(), true);
 
         if (context.isEmpty() && user.getPrimaryGroup().getStoredValue().orElse(GroupManager.DEFAULT_GROUP_NAME).equalsIgnoreCase(old)) {
             user.getPrimaryGroup().setStoredValue(previousGroup.getName());

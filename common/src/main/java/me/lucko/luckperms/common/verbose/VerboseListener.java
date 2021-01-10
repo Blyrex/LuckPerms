@@ -47,7 +47,6 @@ import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.luckperms.api.query.QueryMode;
-import net.luckperms.api.util.Tristate;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -320,21 +319,14 @@ public class VerboseListener {
             e.printStackTrace();
         }
 
-        return bytebin.postContent(bytesOut.toByteArray(), AbstractHttpClient.JSON_TYPE, false).key();
-    }
-
-    private static String getTristateColor(Tristate tristate) {
-        switch (tristate) {
-            case TRUE:
-                return "&2";
-            case FALSE:
-                return "&c";
-            default:
-                return "&7";
-        }
+        return bytebin.postContent(bytesOut.toByteArray(), AbstractHttpClient.JSON_TYPE).key();
     }
 
     public Sender getNotifiedSender() {
         return this.notifiedSender;
+    }
+
+    public int getMatchedCount() {
+        return this.matchedCounter.get();
     }
 }

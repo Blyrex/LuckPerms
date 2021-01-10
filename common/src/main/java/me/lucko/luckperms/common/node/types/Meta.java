@@ -45,7 +45,7 @@ public class Meta extends AbstractNode<MetaNode, MetaNode.Builder> implements Me
     private static final String NODE_MARKER = NODE_KEY + ".";
 
     public static String key(String key, String value) {
-        return NODE_MARKER + Delimiters.escapeCharacters(key) + AbstractNode.NODE_SEPARATOR + Delimiters.escapeCharacters(value);
+        return NODE_MARKER + Delimiters.escapeCharacters(key).toLowerCase() + AbstractNode.NODE_SEPARATOR + Delimiters.escapeCharacters(value);
     }
 
     public static Builder builder() {
@@ -61,7 +61,7 @@ public class Meta extends AbstractNode<MetaNode, MetaNode.Builder> implements Me
 
     public Meta(String metaKey, String metaValue, boolean value, long expireAt, ImmutableContextSet contexts, Map<NodeMetadataKey<?>, Object> metadata) {
         super(key(metaKey, metaValue), value, expireAt, contexts, metadata);
-        this.metaKey = metaKey;
+        this.metaKey = metaKey.toLowerCase();
         this.metaValue = metaValue;
     }
 

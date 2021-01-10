@@ -27,6 +27,6 @@ package me.lucko.luckperms.common.storage.implementation.file;
 
 public enum StorageLocation {
 
-    USER, GROUP, TRACK
+    USERS, GROUPS, TRACKS
 
 }

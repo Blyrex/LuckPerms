@@ -124,7 +124,7 @@ public final class ConfigKeys {
      */
     public static final ConfigKey<ContextSatisfyMode> CONTEXT_SATISFY_MODE = key(c -> {
         String value = c.getString("context-satisfy-mode", "at-least-one-value-per-key");
-        if (value.toLowerCase().equals("all-values-per-key")) {
+        if (value.equalsIgnoreCase("all-values-per-key")) {
             return ContextSatisfyMode.ALL_VALUES_PER_KEY;
         }
         return ContextSatisfyMode.AT_LEAST_ONE_VALUE_PER_KEY;
@@ -199,11 +199,11 @@ public final class ConfigKeys {
         String option = PRIMARY_GROUP_CALCULATION_METHOD.get(c);
         switch (option) {
             case "stored":
-                return (Function<User, PrimaryGroupHolder>) PrimaryGroupHolder.Stored::new;
+                return PrimaryGroupHolder.Stored::new;
             case "parents-by-weight":
-                return (Function<User, PrimaryGroupHolder>) PrimaryGroupHolder.ParentsByWeight::new;
+                return PrimaryGroupHolder.ParentsByWeight::new;
             default:
-                return (Function<User, PrimaryGroupHolder>) PrimaryGroupHolder.AllParentsByWeight::new;
+                return PrimaryGroupHolder.AllParentsByWeight::new;
         }
     }));
 
@@ -236,6 +236,11 @@ public final class ConfigKeys {
         boolean def = c.getPlugin().getBootstrap().getType() == Platform.Type.SPONGE;
         return c.getBoolean("apply-sponge-implicit-wildcards", def);
     }));
+
+    /**
+     * If default negated permissions should be applied before wildcards.
+     */
+    public static final ConfigKey<Boolean> APPLY_DEFAULT_NEGATIONS_BEFORE_WILDCARDS = notReloadable(booleanKey("apply-default-negated-permissions-before-wildcards", false));
 
     /**
      * If regex permissions are being applied
@@ -442,6 +447,11 @@ public final class ConfigKeys {
     public static final ConfigKey<Boolean> VAULT_UNSAFE_LOOKUPS = booleanKey("vault-unsafe-lookups", false);
 
     /**
+     * If LuckPerms should use the 'display name' of a group when returning groups in Vault API calls.
+     */
+    public static final ConfigKey<Boolean> VAULT_GROUP_USE_DISPLAYNAMES = booleanKey("vault-group-use-displaynames", true);
+
+    /**
      * Controls which group LuckPerms should use for NPC players when handling Vault requests
      */
     public static final ConfigKey<String> VAULT_NPC_GROUP = stringKey("vault-npc-group", "default");
@@ -477,6 +487,11 @@ public final class ConfigKeys {
      * If any worlds provided with Vault lookups should be ignored
      */
     public static final ConfigKey<Boolean> VAULT_IGNORE_WORLD = booleanKey("vault-ignore-world", false);
+
+    /**
+     * If the owner of an integrated server should automatically bypasses all permission checks. On fabric, this only applies on an Integrated Server.
+     */
+    public static final ConfigKey<Boolean> FABRIC_INTEGRATED_SERVER_OWNER_BYPASSES_CHECKS = booleanKey("integrated-server-owner-bypasses-checks", true);
 
     /**
      * The world rewrites map
